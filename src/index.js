@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import logoImg from './assets/logo.png';
 
+import TemplateScene from './Scenes/TemplateScene.mjs';
+
 class MyGame extends Phaser.Scene
 {
     constructor ()
@@ -15,31 +17,36 @@ class MyGame extends Phaser.Scene
 
         //  This is an example of loading a static image from the public folder:
         this.load.image('background', 'assets/bg.jpg');
+
+        this.load.image('bitsy', 'assets/nonpermanent/bitsy-6x8.png')
     }
       
     create ()
     {
-        this.add.image(400, 300, 'background');
+        this.add.image(8, 8, 'bitsy').setOrigin(0);
 
-        const logo = this.add.image(400, 150, 'logo');
+        this.add.image(11, 12, 'logo').setOrigin(0);
       
-        this.tweens.add({
-            targets: logo,
-            y: 450,
-            duration: 2000,
-            ease: "Power2",
-            yoyo: true,
-            loop: -1
-        });
+        this.scene.launch('TemplateScene');
+
     }
 }
 
 const config = {
-    type: Phaser.AUTO,
+    // type: Phaser.AUTO,
+    pixelArt: true,
+    backgroundColor: '#320822',
+    disableContextMenu: true,
     parent: 'phaser-example',
-    width: 800,
-    height: 600,
-    scene: MyGame
+    scale:
+    {
+        mode: Phaser.Scale.NONE,
+        //autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 256,
+        height: 200,
+        zoom: 3
+    },
+    scene: [MyGame, TemplateScene]
 };
 
 const game = new Phaser.Game(config);
