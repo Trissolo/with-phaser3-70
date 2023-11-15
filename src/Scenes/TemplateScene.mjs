@@ -22,16 +22,17 @@ export default class TemplateScene extends Phaser.Scene
                 // width: 30,
                 backgroundColor: "#225"
               }
-            })
+            });
     }
 
     init()
     {
-        console.log('initc', this.sys.settings.key);
+        console.log('init', this.sys.settings.key);
+
         this.events.once('create', () => {
             
             console.log("on create evt", this.sys.settings.key, this.scene.getStatus(this));
-            this.scene.sleep(this);
+            // this.scene.sleep(this);
             
         });
     }
@@ -43,7 +44,7 @@ export default class TemplateScene extends Phaser.Scene
 
     create()
     {
-        console.log('create', this.sys.settings.key);
+        console.log('create', this.scene.key);
 
     }
 }  // end Scene Class
