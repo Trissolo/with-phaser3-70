@@ -31,7 +31,7 @@ export default class TemplateScene extends Phaser.Scene
         this.events.once('create', () => {
             
             console.log("on create evt", this.sys.settings.key, this.scene.getStatus(this));
-            this.scene.sleep(this);
+            // this.scene.sleep(this);
             
         });
     }
