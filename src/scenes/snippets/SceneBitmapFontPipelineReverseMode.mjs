@@ -34,10 +34,6 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
         const gag = new PipelineReverseMode(this.game);
         
         this.renderer.pipelines.add("RevMod", gag);
-
-        gag.set4f("colorA", 1, 0, 0, 1)
-        gag.set4f("colorB", 1, 1, 0, 1)
-
     }
 
     preload ()
@@ -57,7 +53,8 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
 
         this.text = this.add.bitmapText(4, 32, 'fontwiz', sent, 8)
         .setOrigin(0)
-        .setPipeline('RevMod');
+        .setTintFill(0x999944);
+        // .setPipeline('RevMod');
 
         console.log(this.text.pipeline.name);
 
@@ -68,8 +65,8 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
             {
                 this.text.setPipeline('RevMod');
 
-                this.text.pipeline.set4f('colorA', Math.random(), Math.random(), Math.random(), 1);
-                this.text.pipeline.set4f('colorB', Math.random(), Math.random(), Math.random(), 1);
+                this.text.pipeline.set3f('colorB', Math.random(), Math.random(), Math.random());
+                this.text.pipeline.set3f('colorA', 68/255, 137/255, 26/255); //Math.random(), Math.random(), Math.random());
 
             }
             else
