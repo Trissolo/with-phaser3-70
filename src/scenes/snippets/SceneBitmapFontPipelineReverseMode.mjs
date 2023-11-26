@@ -2,10 +2,10 @@ import Phaser from "phaser";
 
 import PipelineReverseMode from "./PipelineReverseMode.mjs";
 
+// const {RGBStringToColor, IntegerToColor} = Phaser.Display.Color;
+
 export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
 {
-    customPipeline;
-
     constructor()
     {
         super({
@@ -31,9 +31,7 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
 
     init()
     {
-        const gag = new PipelineReverseMode(this.game);
-        
-        this.renderer.pipelines.add("RevMod", gag);
+        this.renderer.pipelines.add("RevMod", new PipelineReverseMode(this.game));
     }
 
     preload ()
@@ -45,37 +43,103 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
     
     create ()
     {
-        // const testFont = this.cache.bitmapFont.get('fontwiz');//.data.chars;
+        const {chars} = this.cache.bitmapFont.get('fontwiz').data;
 
-        // const {chars} = testFont.data;
+        chars[183] = chars[32];
 
-        const sent = "Orcus\n12,5\nsOugx\nj,Ox\nÈÈÈÈ\nÈOrcus}"; //`${fakeSpace}AMAZE${fakeSpace}THE\nMINOTAUR${fakeSpace}03`
+        const fakeSpace = String.fromCharCode(183);
+
+        const sent = fakeSpace + "Orcus\n12,5\nsOugx\nj,Ox\nÈÈÈÈ\nÈOrcus}" + fakeSpace; //`${fakeSpace}AMAZE${fakeSpace}THE\nMINOTAUR${fakeSpace}03`
 
         this.text = this.add.bitmapText(4, 32, 'fontwiz', sent, 8)
         .setOrigin(0)
         .setTintFill(0x999944);
         // .setPipeline('RevMod');
 
-        console.log(this.text.pipeline.name);
-
 
         this.input.on('pointerdown', pointer =>
         {
-            if (this.text.pipeline === this.text.defaultPipeline)
-            {
-                this.text.setPipeline('RevMod');
+            // first test:
+            // if (this.text.pipeline === this.text.defaultPipeline)
+            // {
+            //     this.text.setPipeline('RevMod');
 
-                this.text.pipeline.set3f('colorB', Math.random(), Math.random(), Math.random());
-                this.text.pipeline.set3f('colorA', 68/255, 137/255, 26/255); //Math.random(), Math.random(), Math.random());
+            //     this.text.pipeline.setColorA(Math.random(), Math.random(), Math.random());
+            //     this.text.pipeline.setColorB(Math.random(), Math.random(), Math.random()); 
 
-            }
-            else
-            {
-                this.text.resetPipeline();
-            }
+            // }
+            // else
+            // {
+            //     this.text.resetPipeline();
+            // }
+
+            //Second test
+            this.testTimeline();
         },
         this);
 
     }  //End Create
+
+    testTimeline(text = this.text)
+    {
+        const timeline = this.add.timeline([
+            {
+                at: 0,
+                target: text,
+                run: function(){ this.setPipeline('RevMod')}
+            },
+
+            {
+                at: 0,
+                // target: pipeline,
+                run: () => {
+                    text.pipeline.bgColorFromHex(0xff0000);
+                    text.pipeline.charColorFromHex(0x3478db);
+                }
+            },
+            {
+                at: 800,
+                run: () => {
+                    text.pipeline.bgColorFromHex();
+                    text.pipeline.charColorFromHex();
+                }
+            },
+            {
+                at: 1600,
+                run: () => {
+                    text.pipeline.bgColorFromHex(0xff0000);
+                    text.pipeline.charColorFromHex(0x3478db);
+                }
+            },
+            {
+                at: 2400,
+                run: () => {
+                    text.pipeline.bgColorFromHex();
+                    text.pipeline.charColorFromHex();
+                }
+            },
+            {
+                at: 3200,
+                run: () => {
+                    text.pipeline.bgColorFromHex(0xff4466);
+                    text.pipeline.charColorFromHex(0xffff00);
+                }
+            },
+            {
+                at: 4000,
+                run: () => {
+                    text.pipeline.bgColorFromHex(0x55ba65);
+                    text.pipeline.charColorFromHex(0xffffff);
+                }
+            },
+            {
+                at:5800,
+                target: text,
+                run: text.resetPipeline
+            }
+        ]);
+
+        timeline.play();
+    }
 
 }
