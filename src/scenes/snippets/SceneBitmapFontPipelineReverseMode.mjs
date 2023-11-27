@@ -6,6 +6,7 @@ import PipelineReverseMode from "./PipelineReverseMode.mjs";
 
 export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
 {
+    
     constructor()
     {
         super({
@@ -32,12 +33,14 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
     init()
     {
         this.renderer.pipelines.add("RevMod", new PipelineReverseMode(this.game));
+
+        this.events.once('create', () => this.timedEvent = this.time.addEvent({paused: true}))
     }
 
     preload ()
     {
-        this.load.bitmapFont('fontwiz', "assets/nonpermanent/font_bianco.png", "assets/nonpermanent/font_bianco.xml")
-        // this.load.bitmapFont('fontwiz', "assets/nonpermanent/font_eng.png", "assets/nonpermanent/font_eng.xml")
+        // this.load.bitmapFont('fontwiz', "assets/nonpermanent/font_bianco.png", "assets/nonpermanent/font_bianco.xml")
+        this.load.bitmapFont('fontwiz', "assets/nonpermanent/font_eng.png", "assets/nonpermanent/font_eng.xml")
 
     }
     
@@ -74,7 +77,15 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
             // }
 
             //Second test
-            this.testTimeline();
+            //this.testTimeline();
+
+            //tirth
+            // this.text.setPipeline('RevMod');
+            // this.text.pipeline.charColorFromHex(0x30da78);
+            // this.text.pipeline.bgColorFromHex(0xff00ff);
+
+            //again
+            this.testTimedEvent();
         },
         this);
 
@@ -93,35 +104,35 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
                 at: 0,
                 // target: pipeline,
                 run: () => {
-                    text.pipeline.bgColorFromHex(0xff0000);
+                    //text.pipeline.bgColorFromHex(0xff0000);
                     text.pipeline.charColorFromHex(0x3478db);
                 }
             },
             {
                 at: 800,
                 run: () => {
-                    text.pipeline.bgColorFromHex();
+                    //text.pipeline.bgColorFromHex();
                     text.pipeline.charColorFromHex();
                 }
             },
             {
                 at: 1600,
                 run: () => {
-                    text.pipeline.bgColorFromHex(0xff0000);
+                    //text.pipeline.bgColorFromHex(0xff0000);
                     text.pipeline.charColorFromHex(0x3478db);
                 }
             },
             {
                 at: 2400,
                 run: () => {
-                    text.pipeline.bgColorFromHex();
+                    //text.pipeline.bgColorFromHex();
                     text.pipeline.charColorFromHex();
                 }
             },
             {
                 at: 3200,
                 run: () => {
-                    text.pipeline.bgColorFromHex(0xff4466);
+                    //text.pipeline.bgColorFromHex(0xff4466);
                     text.pipeline.charColorFromHex(0xffff00);
                 }
             },
@@ -140,6 +151,39 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
         ]);
 
         timeline.play();
+    }
+
+    testTimedEvent()
+    {
+        console.dir(this.time._active, this.time._pendingRemoval, this.time._pendingInsertion);
+
+        this.renderer.pipelines.get('RevMod')
+        .setColorB(...this.cameras.main.backgroundColor.gl)
+        .bgColorFromHex(0xffff00);
+        // .charColorFromHex(0x674545)
+        
+        this.time.addEvent(this.timedEvent.reset(
+            {
+                delay: 333,
+                callback: Math.random() < 0.5? this.blinkBg:this.blinkText,
+                callbackScope: this.text,
+                args: [this.timedEvent],
+                repeat: Phaser.Math.Between(9, 13)
+            })
+        );
+
+    }
+
+    blinkBg(timedEvent)
+    {
+        this.setPipeline('RevMod');
+        this.pipeline.bgColorFromHex((timedEvent.repeatCount & 1) === 0? 0xffff00: 0xca3838);
+    }
+
+    blinkText(timedEvent)
+    {
+        this.setPipeline('RevMod');
+        this.pipeline.charColorFromHex((timedEvent.repeatCount & 1) === 0? 0x1234ff: 0x83baba);
     }
 
 }

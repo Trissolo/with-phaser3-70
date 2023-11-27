@@ -22,9 +22,9 @@ export default class PipelineReverseMode extends Phaser.Renderer.WebGL.Pipelines
             {
                 vec4 texture = texture2D(uMainSampler, outTexCoord);
 
-                //texture.rgba = texture.a == 1.0? vec4(colorB, 1.0): vec4(colorA, 1.0);
+                texture.rgba = vec4(texture.a == 0.0? colorA : colorB, 1.0);
 
-                texture.rgba = vec4(colorB * texture.a + colorA * abs(1.0 - texture.a), 1.0);
+                //texture.rgba = vec4(colorB * texture.a + colorA * abs(1.0 - texture.a), 1.0);
 
                 gl_FragColor = texture;
                                
@@ -42,11 +42,15 @@ export default class PipelineReverseMode extends Phaser.Renderer.WebGL.Pipelines
     setColorA(r = 0.5, g = 0.6, b = 1)
     {
         this.set3f('colorA', r, g, b);
+
+        return this;
     }
 
     setColorB(r = 0.2, g = 0.2, b = 1)
     {
         this.set3f('colorB', r, g, b);
+
+        return this;
     }
 
     bgColorFromHex(bgcolor = 0xffffff)
@@ -56,6 +60,8 @@ export default class PipelineReverseMode extends Phaser.Renderer.WebGL.Pipelines
             (bgcolor >> 8 & 0xFF) / 255,
             (bgcolor & 0xFF) / 255
         );
+
+        return this;
     }
 
     charColorFromHex(charColor = 0)
@@ -65,6 +71,8 @@ export default class PipelineReverseMode extends Phaser.Renderer.WebGL.Pipelines
             (charColor >> 8 & 0xFF) / 255,
             (charColor & 0xFF) / 255
         );
+
+        return this;
     }
 
 }
