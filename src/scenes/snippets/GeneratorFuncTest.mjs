@@ -109,4 +109,9 @@ export default class GeneratorFuncTestDebug extends Phaser.Scene
 
         yield console.log("Done.");
     }
+
+    overlap(a0, a1, b0, b1)
+    {
+       return Math.min(a0, a1) <= Math.max(b0, b1) && Math.min(b0, b1) <= Math.max(a0, a1);
+    }
 }  // end Scene Class
