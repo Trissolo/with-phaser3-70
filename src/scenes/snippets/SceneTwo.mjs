@@ -4,6 +4,14 @@ import PipelineReverseMode from "./PipelineReverseMode.mjs";
 
 export default class SceneTwo extends Phaser.Scene
 {
+    imgGroup;
+    currentlyUsed = new Map();
+
+    enteredCode = [];
+    inputMaxLength = 8;
+    wantedCode = [];
+    shownCode
+
     constructor()
     {
         super({
@@ -29,7 +37,7 @@ export default class SceneTwo extends Phaser.Scene
 
     init()
     {
-        
+        this.imgGroup = this.add.group({classType: Phaser.GameObjects.Image});
 
         // this.load.on('loaderror', console.log)
 
@@ -78,26 +86,181 @@ export default class SceneTwo extends Phaser.Scene
         // }
 
         const fakeSpace = String.fromCharCode(200);
-        const assemble = num =>  String.fromCharCode(200) + num + String.fromCharCode(200);//= String.fromCharCode(200);
+        // const assemble = num =>  String.fromCharCode(200) + num + String.fromCharCode(200);//= String.fromCharCode(200);
 
         this.setPipelineColors();
 
-        const bt = this.add.bitmapText(8, 8, "wizardry", assemble(1)+" "+assemble(2)+"\n\n"+assemble(4)+" "+assemble(5))
-        .setOrigin(0)
-        .setPipeline('RevMod');
+        // const bt = this.add.bitmapText(8, 8, "wizardry", assemble(1)+" "+assemble(2)+"\n\n"+assemble(4)+" "+assemble(5))
+        // .setOrigin(0)
+        // .setPipeline('RevMod');
 
         // bt.pipCol = 0xffff00;
 
         // console.dir(fdata)
-        const testImg = this.add.image(48, 8, 'wizardry', 'wiz6')
-        .setOrigin(0)
-        .setPipeline('RevMod')
-        .setInteractive()
-        .on('pointerover', this.setPipA)
-        .on('pointerout', this.onOut);
+        // const testImg = this.add.image(48, 8, 'wizardry', 'wiz6')
+        // .setOrigin(0)
+        // .setPipeline('RevMod')
+        // .setInteractive()
+        // .on('pointerover', this.setPipA)
+        // .on('pointerout', this.onOut);
 
         // testImg.pipCol = 0xffffff;
+        this.shownCode = this.add.bitmapText(24, 8, "wizardry", "654");
 
+        // this.drawNumericKeypad();
+        this.prepare(3);
+
+    }
+
+    prepare(wanted = 3)
+    {
+        this.setWantedCode(wanted);
+
+        this.drawNumericKeypad();
+    }
+
+    drawNumericKeypad()
+    {
+        this.clearUsed();
+
+        let x = 8;
+        let xAdv = 20;
+
+        let y = 24;
+        let yAdv = 12;
+        let testImg;
+
+        // const tempAry = new Array(10).fill(0);
+        // tempAry.forEach((elem, idx, arr) => arr[idx] = idx === 9? 0 : idx + 1);
+
+        for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) //= 1; i < 10; i++)
+        {
+            console.log(i, x, y)
+            testImg = this.imgGroup.get(x, y, 'wizardry', `wiz${i}`) //add.image(48, 8, 'wizardry', 'wiz6')
+            .setOrigin(0)
+            .setPipeline('RevMod')
+            .setInteractive()
+            .on('pointerover', this.setPipA)
+            .on('pointerout', this.onOut)
+            //use '.name' prop as value holder?
+            .setName(i)
+            .on('pointerdown', this.enterCodeDigit);
+
+            x += 20;
+            if (x === 68)
+            {
+                x = 8;
+                y += 12;
+            }
+
+            this.currentlyUsed.set(i, testImg);
+        }
+
+        //hardcoded :((
+        testImg = this.imgGroup.get(48, 60, 'wizardry', `=`)
+            .setOrigin(0)
+            .setPipeline('RevMod')
+            .setInteractive()
+            .on('pointerover', this.setPipA)
+            .on('pointerout', this.onOut)
+            .on('pointerdown', this.checkCode);
+        
+        this.currentlyUsed.set("checkBtn", testImg);
+
+        console.log(Phaser.Math.RND);
+        console.dir(this.currentlyUsed);
+
+    }
+
+    checkCode()
+    {
+        console.log(this.scene.enteredCode, this.scene.wantedCode);
+        let test = true;
+        const {enteredCode} = this.scene;
+        const wantedCode = this.scene.wantedCode + "";
+        const {length} = wantedCode;
+        // console.log(wantedCode, typeof wantedCode, length, enteredCode.length);
+        if (length !== enteredCode.length)
+        {
+            test = false;
+            // return false
+        }
+        else
+        {
+            for (let i = 0; i < length; i++)
+            {
+                // const ent = enteredCode[i];
+                // const wan = wantedCode[i];
+
+                if (enteredCode[i] !== +wantedCode[i])
+                {
+                    test = false;
+                    break
+                    return false;
+                }
+            }
+            
+        }
+        
+        console.log(test? "Correct": "Wrong");
+        return test;
+    }
+
+    enterCodeDigit()
+    {
+        const {scene} = this;
+        scene.enteredCode.push(this.name);
+        scene.shownCode.setText(scene.enteredCode.join(''))
+    }
+
+    setWantedCode(codeIdx = 0, amo = "9876")
+    {
+        const {RND: rnd} = Phaser.Math;
+
+        // const seedBck = rnd.state();
+
+        rnd.sow(amo);
+
+        for (let i = 0; i < codeIdx; i++)
+        {
+            rnd.between(2793, 9999);
+        }
+
+        //wantedCode as Array?
+        // const {wantedCode} = this;
+
+        // wantedCode.length = 0;
+   
+        // for (const digit of ("" + rnd.between(2793, 9999)))
+        // {
+        //     wantedCode.push( +digit );
+        // }
+
+        // wantedCode.forEach((el, id, ar) => ar[id] = +el);
+
+        
+        // wantedCode as String
+        this.wantedCode = rnd.between(2793, 9999);
+        
+        console.log("WCO after q", this.wantedCode);
+    }
+
+    clearUsed()
+    {
+        for (const thing of this.currentlyUsed)
+        {
+
+            thing.disableInteractive()
+            .setActive(false)
+            .setVisible(false)
+            .off('pointerover')
+            .off('pointerout')
+            .off('pointerdown');     
+        }
+
+        this.currentlyUsed.clear();
+
+        return this;
     }
 
     setPipelineColors()
@@ -129,8 +292,12 @@ export default class SceneTwo extends Phaser.Scene
 
     addSpecialFrames()
     {
+        //Not Atlas, ATM :(
         const texture = this.textures.get('wizardry');
-        // console.log(texture);
+
+        //better from the bitmapFont directly:
+        const bmFont = this.cache.bitmapFont.get('wizardry').data.chars;
+
         let fr;
         let custOffsetX = 4;
 
@@ -145,6 +312,8 @@ export default class SceneTwo extends Phaser.Scene
             texture.add(prefix + i, sourceIndex, cutX - custOffsetX, cutY - 1, width + custOffsetX + custOffsetX, height + 2);
         }
 
-        // console.dir("After:", this.textures.get('wizardry'))
+        // console.dir("...Texture, after:", bmFont[61])
+        // fr = bmFont[61];
+        // texture.add(prefix + "=", 0, cutX - custOffsetX, cutY - 1, width + custOffsetX + custOffsetX, height + 2);
     }
 }  // end Scene Class
