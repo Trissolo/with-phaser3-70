@@ -40,7 +40,7 @@ export default class SceneBitmapFontPipelineReverseMode extends Phaser.Scene
     preload ()
     {
         // this.load.bitmapFont('fontwiz', "assets/nonpermanent/font_bianco.png", "assets/nonpermanent/font_bianco.xml")
-        this.load.bitmapFont('fontwiz', "assets/nonpermanent/font_eng.png", "assets/nonpermanent/font_eng.xml")
+        this.load.bitmapFont('fontwiz', "assets/nonpermanent/font_eng.png", "assets/nonpermanent/font_eng.xml");
 
     }
     
