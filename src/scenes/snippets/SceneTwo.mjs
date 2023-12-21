@@ -196,7 +196,7 @@ export default class SceneTwo extends Phaser.Scene
                 {
                     test = false;
                     break
-                    return false;
+                    // return false;
                 }
             }
             
@@ -259,6 +259,13 @@ export default class SceneTwo extends Phaser.Scene
         }
 
         this.currentlyUsed.clear();
+
+        return this;
+    }
+
+    deleteLastDigit()
+    {
+        this.enteredCode.length = Math.min(0, this.enteredCode.length -1);
 
         return this;
     }
