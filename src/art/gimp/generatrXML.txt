@@ -19,12 +19,14 @@ def make_line(c, x, y, w, h):
   return '<char id="{c}" x="{x}" y="{y}" width="{w}" height="{h}" xoffset="0" yoffset="0" xadvance="{w}"/>\n'.format(c=c, x=x, y=y, w=w, h=h)
 
 for idx, layer in enumerate(img.layers):
-  if layer.visible == True:
+  if layer.visible:
     c = get_char_code(layer.name, idx)
     x, y = layer.offsets
     w = layer.width
     h = layer.height
-    lineHeight = h
+    if lineHeight < h:
+        lineHeight = h
+    
     char_info += make_line(c, x, y, w, h)
 
 
