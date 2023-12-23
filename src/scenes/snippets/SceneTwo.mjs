@@ -59,7 +59,7 @@ export default class SceneTwo extends Phaser.Scene
         // console.log(this.load.baseURL);
 
         // this.load.bitmapFont('wizardry', "wizardry.png", "wizardry.xml");
-        this.load.bitmapFont('wizardry', "wizardryb.png", "wizardryb.xml");
+        this.load.bitmapFont('wizardry', "wizardry_min.png", "wizardry_min.xml");
 
     }
 
@@ -105,7 +105,18 @@ export default class SceneTwo extends Phaser.Scene
         // .on('pointerout', this.onOut);
 
         // testImg.pipCol = 0xffffff;
-        this.shownCode = this.add.bitmapText(24, 8, "wizardry", "654");
+
+        // let testString = "", maxch = 0;
+        // for (const gag in this.cache.bitmapFont.get('wizardry').data.chars)
+        // {
+        //     testString += String.fromCharCode(gag);
+        //     if (maxch++ > 10)
+        //     {
+        //         testString+="\n";
+        //         maxch = 0;
+        //     }
+        // }
+        this.shownCode = this.add.bitmapText(18, 8, "wizardry", "----");
 
         // this.drawNumericKeypad();
         this.prepare(3);
@@ -124,40 +135,52 @@ export default class SceneTwo extends Phaser.Scene
         this.clearUsed();
 
         let x = 8;
-        let xAdv = 20;
+        const xAdv = 20;
 
         let y = 24;
-        let yAdv = 12;
+        const yAdv = 12;
         let testImg;
 
         // const tempAry = new Array(10).fill(0);
         // tempAry.forEach((elem, idx, arr) => arr[idx] = idx === 9? 0 : idx + 1);
 
-        for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) //= 1; i < 10; i++)
+        for (const element of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) //= 1; element < 10; element++)
         {
-            console.log(i, x, y)
-            testImg = this.imgGroup.get(x, y, 'wizardry', `wiz${i}`) //add.image(48, 8, 'wizardry', 'wiz6')
+            // console.log(element, x, y)
+            testImg = this.imgGroup.get(x, y, 'wizardry', `wiz${element}`) //add.image(48, 8, 'wizardry', 'wiz6')
             .setOrigin(0)
             .setPipeline('RevMod')
             .setInteractive()
             .on('pointerover', this.setPipA)
             .on('pointerout', this.onOut)
             //use '.name' prop as value holder?
-            .setName(i)
+            .setName(element)
             .on('pointerdown', this.enterCodeDigit);
 
-            x += 20;
+            x += xAdv;
             if (x === 68)
             {
                 x = 8;
-                y += 12;
+                y += yAdv;
             }
 
-            this.currentlyUsed.set(i, testImg);
+            this.currentlyUsed.set(element, testImg);
         }
 
         //hardcoded :((
-        testImg = this.imgGroup.get(48, 60, 'wizardry', `=`)
+        testImg = this.imgGroup.get(x, y, 'wizardry', `wiz<`)
+        .setOrigin(0)
+        .setPipeline('RevMod')
+        .setInteractive()
+        .on('pointerover', this.setPipA)
+        .on('pointerout', this.onOut)
+        .on('pointerdown', this.deleteLastDigit, this);
+        
+        this.currentlyUsed.set("checkBtn", testImg);
+
+        x += xAdv;
+
+        testImg = this.imgGroup.get(x, y, 'wizardry', `wiz>`)
             .setOrigin(0)
             .setPipeline('RevMod')
             .setInteractive()
@@ -165,9 +188,9 @@ export default class SceneTwo extends Phaser.Scene
             .on('pointerout', this.onOut)
             .on('pointerdown', this.checkCode);
         
-        this.currentlyUsed.set("checkBtn", testImg);
+        this.currentlyUsed.set("enterBtn", testImg);
 
-        console.log(Phaser.Math.RND);
+        // console.log(Phaser.Math.RND);
         console.dir(this.currentlyUsed);
 
     }
@@ -253,6 +276,7 @@ export default class SceneTwo extends Phaser.Scene
             thing.disableInteractive()
             .setActive(false)
             .setVisible(false)
+            .resetPipeline()
             .off('pointerover')
             .off('pointerout')
             .off('pointerdown');     
@@ -265,7 +289,9 @@ export default class SceneTwo extends Phaser.Scene
 
     deleteLastDigit()
     {
-        this.enteredCode.length = Math.min(0, this.enteredCode.length -1);
+        this.enteredCode.length = Math.max(0, this.enteredCode.length - 1);
+
+        this.shownCode.setText(this.enteredCode.join(""));
 
         return this;
     }
@@ -305,18 +331,24 @@ export default class SceneTwo extends Phaser.Scene
         //better from the bitmapFont directly:
         const bmFont = this.cache.bitmapFont.get('wizardry').data.chars;
 
-        let fr;
-        let custOffsetX = 4;
+        // let fr;
+
+        const custOffsetX = 4;
 
         const prefix = "wiz";
 
-        for (let i = 0; i < 10; i++)
+        // hardcoded
+        const charCodes = Phaser.Utils.Array.NumberArray(48, 57);
+        charCodes.push(60, 62);
+
+        for (const element of charCodes) // = 0;element < 10; element++)
         {
-            fr = texture.frames[`${i}`];
-            // console.log("gag", i, fr, fr.cutX)
-            const {width, height, cutX, cutY, sourceIndex} = fr;
-            // console.log("hmm", i, width, height, cutX, cutY, sourceIndex)
-            texture.add(prefix + i, sourceIndex, cutX - custOffsetX, cutY - 1, width + custOffsetX + custOffsetX, height + 2);
+            const char = String.fromCharCode(element);
+            // fr = texture.frames[char];
+            // console.log("gag", element, fr, "char", char, fr.cutX)
+            const {width, height, cutX, cutY, sourceIndex} = texture.frames[char];
+            console.log("hmm", char, element, width, height, cutX, cutY, sourceIndex)
+            texture.add(prefix + char, sourceIndex, cutX - custOffsetX, cutY, width + custOffsetX + custOffsetX, height);
         }
 
         // console.dir("...Texture, after:", bmFont[61])
