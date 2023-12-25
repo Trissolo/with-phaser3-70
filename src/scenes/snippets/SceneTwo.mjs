@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 
-import PipelineReverseMode from "./PipelineReverseMode.mjs";
+// import PipelineReverseMode from "./PipelineReverseMode.mjs";
+
+import ReverseModePipeline from "./pipelines/revMode.mjs";
 
 export default class SceneTwo extends Phaser.Scene
 {
@@ -39,28 +41,14 @@ export default class SceneTwo extends Phaser.Scene
     {
         this.imgGroup = this.add.group({classType: Phaser.GameObjects.Image});
 
-        // this.load.on('loaderror', console.log)
-
-        // this.load.on('load', console.log)
-
-        // this.events.once('create', () => {
-            
-            this.renderer.pipelines.add("RevMod", new PipelineReverseMode(this.game));
-            this.renderer.pipelines.add("SecRevMod", new PipelineReverseMode(this.game));
-
-            // console.log("on create evt", this.sys.settings.key, this.scene.getStatus(this));
-            
-        // });
+        this.renderer.pipelines.add("RevMod", new ReverseModePipeline(this.game));
     }
 
     preload()
     {
         this.load.setBaseURL("assets/nonpermanent");
-        // console.log(this.load.baseURL);
 
-        // this.load.bitmapFont('wizardry', "wizardry.png", "wizardry.xml");
         this.load.bitmapFont('wizardry', "wizardry_min.png", "wizardry_min.xml");
-
     }
 
     create()
@@ -88,7 +76,7 @@ export default class SceneTwo extends Phaser.Scene
         const fakeSpace = String.fromCharCode(200);
         // const assemble = num =>  String.fromCharCode(200) + num + String.fromCharCode(200);//= String.fromCharCode(200);
 
-        this.setPipelineColors();
+        // this.setPipelineColors();
 
         // const bt = this.add.bitmapText(8, 8, "wizardry", assemble(1)+" "+assemble(2)+"\n\n"+assemble(4)+" "+assemble(5))
         // .setOrigin(0)
@@ -121,6 +109,8 @@ export default class SceneTwo extends Phaser.Scene
         // this.drawNumericKeypad();
         this.prepare(3);
 
+        this.input.keyboard.on('keydown-Z', () => this.drawNumericKeypad(18));
+
     }
 
     prepare(wanted = 3)
@@ -130,15 +120,18 @@ export default class SceneTwo extends Phaser.Scene
         this.drawNumericKeypad();
     }
 
-    drawNumericKeypad()
+    drawNumericKeypad(xAdv = 20)
     {
         this.clearUsed();
 
-        let x = 8;
-        const xAdv = 20;
+        const leftmost = 8
+        let x = leftmost;
+        // const xAdv = 20;
+        const maxX = leftmost + xAdv * 3;
 
         let y = 24;
         const yAdv = 12;
+
         let testImg;
 
         // const tempAry = new Array(10).fill(0);
@@ -151,16 +144,23 @@ export default class SceneTwo extends Phaser.Scene
             .setOrigin(0)
             .setPipeline('RevMod')
             .setInteractive()
-            .on('pointerover', this.setPipA)
+            .on('pointerover', this.onOver)
             .on('pointerout', this.onOut)
-            //use '.name' prop as value holder?
+            //using '.name' prop as value holder
             .setName(element)
-            .on('pointerdown', this.enterCodeDigit);
+            .on('pointerdown', this.enterCodeDigit)
+            .setVisible(true)
+            .setActive(true);
+
+            testImg.colorA = 0x121212;
+            testImg.colorB = 0x898989;
+
+            // console.log(testImg, testImg.x, testImg.y)
 
             x += xAdv;
-            if (x === 68)
+            if (x === maxX)
             {
-                x = 8;
+                x = leftmost;
                 y += yAdv;
             }
 
@@ -170,11 +170,17 @@ export default class SceneTwo extends Phaser.Scene
         //hardcoded :((
         testImg = this.imgGroup.get(x, y, 'wizardry', `wiz<`)
         .setOrigin(0)
+        .setName("<")
         .setPipeline('RevMod')
         .setInteractive()
-        .on('pointerover', this.setPipA)
-        .on('pointerout', this.onOut)
-        .on('pointerdown', this.deleteLastDigit, this);
+        .on('pointerover', this.onOverUnique)
+        .on('pointerout', this.onOutUnique)
+        .on('pointerdown', this.deleteLastDigit, this)
+        .setVisible(true)
+        .setActive(true);
+
+        testImg.colorA = 0x121212; // 0x56bd56;
+        testImg.colorB = 0x898989; // 0xbd56bd;
         
         this.currentlyUsed.set("checkBtn", testImg);
 
@@ -182,11 +188,17 @@ export default class SceneTwo extends Phaser.Scene
 
         testImg = this.imgGroup.get(x, y, 'wizardry', `wiz>`)
             .setOrigin(0)
+            .setName(">")
             .setPipeline('RevMod')
             .setInteractive()
-            .on('pointerover', this.setPipA)
+            .on('pointerover', this.onOver)
             .on('pointerout', this.onOut)
-            .on('pointerdown', this.checkCode);
+            .on('pointerdown', this.checkCode)
+            .setVisible(true)
+            .setActive(true);
+
+        testImg.colorA = 0x121212;
+        testImg.colorB = 0x898989;
         
         this.currentlyUsed.set("enterBtn", testImg);
 
@@ -270,16 +282,16 @@ export default class SceneTwo extends Phaser.Scene
 
     clearUsed()
     {
-        for (const thing of this.currentlyUsed)
+        for (const thing of this.currentlyUsed.values())
         {
-
+            // console.log("clearUsed - not chained", thing.name);
             thing.disableInteractive()
-            .setActive(false)
-            .setVisible(false)
-            .resetPipeline()
-            .off('pointerover')
-            .off('pointerout')
-            .off('pointerdown');     
+            thing.setActive(false)
+            thing.setVisible(false)
+            thing.resetPipeline()
+            thing.off('pointerover')
+            thing.off('pointerout')
+            thing.off('pointerdown');     
         }
 
         this.currentlyUsed.clear();
@@ -296,31 +308,47 @@ export default class SceneTwo extends Phaser.Scene
         return this;
     }
 
-    setPipelineColors()
-    {
-        let pip = this.renderer.pipelines.get('RevMod')
-        pip.bgColorFromHex(0x121212);
-        pip.charColorFromHex(0x898989);
+    // setPipelineColors()
+    // {
+    //     let pip = this.renderer.pipelines.get('RevMod')
+    //     pip.bgColorFromHex(0x121212);
+    //     pip.charColorFromHex(0x898989);
 
-        pip = this.renderer.pipelines.get('SecRevMod')
-        pip.bgColorFromHex(0xbdca78);
-        pip.charColorFromHex(0x8b861d);
-    }
-
-    setPipA()
-    {
-        // console.log(this)
-        this.setPipeline('SecRevMod');
-        // this.pipeline('RevMod')
-        // this.pipCol = 0xbdca78;
-        this.pipeline.bgColorFromHex(0xbdca78);
-    }
+    //     pip = this.renderer.pipelines.get('SecRevMod')
+    //     pip.bgColorFromHex(0xbdca78);
+    //     pip.charColorFromHex(0x8b861d);
+    // }
 
     onOut()
     {
+        this.colorA = 0x121212;
+        this.colorB = 0x898989;
+    }
+
+    onOver()
+    {
         // this.pipCol = 0x345678;
         // this.pipeline.bgColorFromHex(0x345678);
-        this.setPipeline('RevMod');
+        // this.setPipeline('RevMod');
+
+        this.colorA = 0xbdca78;
+        this.colorB = 0x8b861d;
+    }
+
+    onOutUnique()
+    {
+        // this.colorA = 0x56bd56;
+        this.colorA = 0x121212;
+    }
+
+    onOverUnique()
+    {
+        // this.pipCol = 0x345678;
+        // this.pipeline.bgColorFromHex(0x345678);
+        // this.setPipeline('RevMod');
+
+        // this.colorA = 0x34c8ff;
+        this.colorA = 0xffffff;
     }
 
     addSpecialFrames()
@@ -347,7 +375,7 @@ export default class SceneTwo extends Phaser.Scene
             // fr = texture.frames[char];
             // console.log("gag", element, fr, "char", char, fr.cutX)
             const {width, height, cutX, cutY, sourceIndex} = texture.frames[char];
-            console.log("hmm", char, element, width, height, cutX, cutY, sourceIndex)
+            // console.log("hmm", char, element, width, height, cutX, cutY, sourceIndex)
             texture.add(prefix + char, sourceIndex, cutX - custOffsetX, cutY, width + custOffsetX + custOffsetX, height);
         }
 
