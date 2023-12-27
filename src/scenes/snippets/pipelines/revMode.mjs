@@ -5,13 +5,15 @@ export default class ReverseModePipeline extends Phaser.Renderer.WebGL.Pipelines
 
     colorB = 0;
 
-    flushIsNeeded = false;
+    // flushRequired = true;
 
-    debugFlush = 0;
+    // flushIsNeeded = false;
 
-    aHasChanged = false;
+    // debugFlush = 0;
 
-    bHasChanged = false;
+    // aHasChanged = false;
+
+    // bHasChanged = false;
 
     constructor(game)
     {
@@ -55,39 +57,77 @@ export default class ReverseModePipeline extends Phaser.Renderer.WebGL.Pipelines
 
     onBind(gameObject)
     {
-        if (gameObject)
+        if (gameObject && (this.colorA !== gameObject.colorA || this.colorB !== gameObject.colorB))
         {
-            // this.flushIsNeeded = false;
 
-            if (this.colorA !== gameObject.colorA || this.colorB !== gameObject.colorB)
+            this.flush();
+
+            if (this.colorA !== gameObject.colorA)
             {
-                this.flush();
 
-                // console.log("Info: Flushing!", gameObject.name); // , this.debugFlush++, this.colorA !== gameObject.colorA, this.colorB !== gameObject.colorB, this.colorA !== gameObject.colorA  ||  this.colorB !== gameObject.colorB);
-
-                if (this.colorA !== gameObject.colorA)
-                {
-                    this.colorA = this.setColorFromHex(gameObject.colorA);
-                }
-
-                if (this.colorB !== gameObject.colorB)
-                {
-                    this.colorB = this.setColorFromHex(gameObject.colorB, 'colorB');
-                }
+                this.colorA = this.setColorFromHex(gameObject.colorA);
 
             }
-            // else
-            // {
-            //     console.log("NOT Flushing!", gameObject.name, this.debugFlush);
-            // }
+
+            if (this.colorB !== gameObject.colorB)
+            {
+
+                this.colorB = this.setColorFromHex(gameObject.colorB, 'colorB');
+
+            }
+
         }
+        // else
+        // {
+        //     console.log("NOT ch!");//, gameObject.name, this.debugFlush);
+        // }      
+    }
+
+    // onBindTest(gameObject)
+    // {
+    //     if (gameObject)
+    //     {
+            
+    //         if (this.colorA !== gameObject.colorA) // || this.colorB !== gameObject.colorB)
+    //         {
+    //             console.log("Flush from A");
+
+    //             this.flush()
+
+    //             this.flushRequired = false;
+
+    //             // console.log("Info: Flushing!", gameObject.name); // , this.debugFlush++, this.colorA !== gameObject.colorA, this.colorB !== gameObject.colorB, this.colorA !== gameObject.colorA  ||  this.colorB !== gameObject.colorB);
+
+    //             this.colorA = this.setColorFromHex(gameObject.colorA);
+
+    //         }
+
+    //         if (this.colorB !== gameObject.colorB)
+    //         {
+    //             if (this.flushRequired)
+    //             {
+    //                 console.log("Flush from B");
+
+    //                 this.flush();
+
+    //                 this.flushRequired = true;
+    //             }
+
+    //             this.colorB = this.setColorFromHex(gameObject.colorB, 'colorB');
+    //         }
+
+    //         // else
+    //         // {
+    //         //     console.log("NOT Flushing!", gameObject.name, this.debugFlush);
+    //         // }
+    //     }
         
-    }
+    // }
 
-    onBatch(gameObject)
-    {
+    // onBatch(gameObject)
+    // {
 
-    }
+    // }
 
     setColorFromHex(hexColor, name = 'colorA')
     {

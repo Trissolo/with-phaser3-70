@@ -56,7 +56,7 @@ export default class SceneTwo extends Phaser.Scene
         // console.log('create', this.sys.settings.key);
         this.addSpecialFrames();
 
-        const fdata = this.cache.bitmapFont.get('wizardry');
+        // const fdata = this.cache.bitmapFont.get('wizardry');
 
         // let res = "";
 
@@ -73,7 +73,7 @@ export default class SceneTwo extends Phaser.Scene
         //     console.log(String.fromCharCode(val), fdata.data.chars[val])
         // }
 
-        const fakeSpace = String.fromCharCode(200);
+        // const fakeSpace = String.fromCharCode(200);
         // const assemble = num =>  String.fromCharCode(200) + num + String.fromCharCode(200);//= String.fromCharCode(200);
 
         // this.setPipelineColors();
@@ -109,7 +109,7 @@ export default class SceneTwo extends Phaser.Scene
         // this.drawNumericKeypad();
         this.prepare(3);
 
-        this.input.keyboard.on('keydown-Z', () => this.drawNumericKeypad(18));
+        this.input.keyboard.on('keydown-Z', () => this.drawNumericKeypad(18, 4));
 
     }
 
@@ -120,17 +120,17 @@ export default class SceneTwo extends Phaser.Scene
         this.drawNumericKeypad();
     }
 
-    drawNumericKeypad(xAdv = 20)
+    drawNumericKeypad(xIncrease = 20, objInRow = 3)
     {
         this.clearUsed();
 
         const leftmost = 8
         let x = leftmost;
-        // const xAdv = 20;
-        const maxX = leftmost + xAdv * 3;
+        // const xIncrease = 20;
+        const maxX = leftmost + xIncrease * objInRow;
 
         let y = 24;
-        const yAdv = 12;
+        const yIncrease = 12;
 
         let testImg;
 
@@ -157,11 +157,11 @@ export default class SceneTwo extends Phaser.Scene
 
             // console.log(testImg, testImg.x, testImg.y)
 
-            x += xAdv;
+            x += xIncrease;
             if (x === maxX)
             {
                 x = leftmost;
-                y += yAdv;
+                y += yIncrease;
             }
 
             this.currentlyUsed.set(element, testImg);
@@ -184,7 +184,7 @@ export default class SceneTwo extends Phaser.Scene
         
         this.currentlyUsed.set("checkBtn", testImg);
 
-        x += xAdv;
+        x += xIncrease;
 
         testImg = this.imgGroup.get(x, y, 'wizardry', `wiz>`)
             .setOrigin(0)
@@ -282,6 +282,7 @@ export default class SceneTwo extends Phaser.Scene
 
     clearUsed()
     {
+        console.log(this.currentlyUsed.size, this.imgGroup);
         for (const thing of this.currentlyUsed.values())
         {
             // console.log("clearUsed - not chained", thing.name);
@@ -337,8 +338,8 @@ export default class SceneTwo extends Phaser.Scene
 
     onOutUnique()
     {
-        // this.colorA = 0x56bd56;
-        this.colorA = 0x121212;
+        this.colorA = 0x898989;
+        this.colorB = 0x121212;
     }
 
     onOverUnique()
@@ -347,8 +348,8 @@ export default class SceneTwo extends Phaser.Scene
         // this.pipeline.bgColorFromHex(0x345678);
         // this.setPipeline('RevMod');
 
-        // this.colorA = 0x34c8ff;
-        this.colorA = 0xffffff;
+        this.colorA = 0x34c8ff;
+        // this.colorB = 0xffffff;
     }
 
     addSpecialFrames()
